@@ -1,0 +1,22 @@
+package com.project.shopapp.dtos;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
+@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserLoginDTO {
+    @JsonProperty("phone_number")
+    @NotBlank(message = "Bắt buộc phải nhập số điện thoại")
+    private String phoneNumber;
+
+    @NotBlank(message = "Mật khẩu không được để trống")
+    private String password;
+
+
+}

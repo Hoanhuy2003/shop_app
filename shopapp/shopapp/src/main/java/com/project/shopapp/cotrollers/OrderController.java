@@ -1,0 +1,79 @@
+package com.project.shopapp.cotrollers;
+
+import com.project.shopapp.dtos.OrderDTO;
+import com.project.shopapp.models.Order;
+import com.project.shopapp.services.IOrderService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("${api.prefix}/orders")
+public class OrderController {
+
+    private final IOrderService orderService;
+
+    public OrderController(IOrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @PostMapping("")
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO orderDTO, BindingResult result){
+        try {
+            if(result.hasErrors()){
+                List<String> errorMessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList(); // lấy ra những file lỗi
+                return ResponseEntity.badRequest().body(errorMessage);
+            }
+            Order order = orderService.createOrder(orderDTO);
+            return ResponseEntity.ok(order);
+
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/user/{user_id}")
+    // /orders/user/{user_id}
+    public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId){
+        try {
+            List<Order> orders = orderService.findByUserId(userId);
+            return ResponseEntity.ok(orders); // Lấy ra danh sách order từ user_id
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOrder(@Valid @PathVariable("id") Long orderId){
+        try {
+            Order existingOrder = orderService.getOrder(orderId);
+            return ResponseEntity.ok(existingOrder); // lấy ra 1 order từ orderId
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateOrder(@Valid @PathVariable long id,
+                                         @Valid @RequestBody OrderDTO orderDTO){
+
+        try {
+            Order order = orderService.updateOrder(id, orderDTO);
+            return ResponseEntity.ok(order); // Cập nhật thông tin 1 đơn hàng
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOrder(@Valid @PathVariable Long id){
+
+        orderService.deleteOrder(id);
+        return ResponseEntity.ok("Đã xóa đơn hàng");
+    }
+}
