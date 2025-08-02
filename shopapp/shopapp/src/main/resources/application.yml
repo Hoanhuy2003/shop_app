@@ -30,4 +30,9 @@ api:
 
 jwt:
   expiration: 2592000 # 30 days = 30*24*60*60
-  secretKey: I have a dream
+  secretKey: N2StyvS4VbzkBFFC35i/JGX9Djmk6Rqom+aVmyk8Zyw=
+
+messages:
+  basename: i18n/messages
+  encoding: UTF-8
+  default-locale: en

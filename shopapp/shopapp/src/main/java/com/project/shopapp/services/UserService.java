@@ -14,6 +14,7 @@ import java.util.Optional;
 import com.project.shopapp.components.JwtTokenUtil;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
+import com.project.shopapp.exceptions.PermissionException;
 import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
 import com.project.shopapp.repositorys.RoleRepository;
@@ -33,22 +34,28 @@ public class UserService implements IUserService {
     
 
     @Override
-    public User createUser(UserDTO userDTO) throws DataNotFoundException {
+    public User createUser(UserDTO userDTO) throws Exception {
         String phoneNumber = userDTO.getPhoneNumber();
         // Kiểm tra số điện thoại đã tồn tại chưa
         if(userRepository.existsByPhoneNumber(phoneNumber)){
             throw new DataIntegrityViolationException("SĐT đã tồn tại");
         }
+        Role role = roleRepository.findById(userDTO.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        if(role.getName().toUpperCase().equals(Role.ADMIN)){
+            throw new PermissionException("Ban khong the dang ky");
+        }        
+
         // userDTO -> user
-        User newUser = User.builder().fullName(userDTO.getFullName())
+        User newUser = User.builder()
+                .fullName(userDTO.getFullName())
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .dateOfBirth((Date) userDTO.getDateOfBirth())
                 .facebookAccountId(userDTO.getFacebookAccountId())
                 .googleAccountId(userDTO.getGoogleAccountId()).build();
 
-        Role role = roleRepository.findById(userDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        
         newUser.setRole(role);
         // kiểm tra nếu có accountId, không yêu cầu password
         if(userDTO.getFacebookAccountId()==0 && userDTO.getGoogleAccountId()==0){

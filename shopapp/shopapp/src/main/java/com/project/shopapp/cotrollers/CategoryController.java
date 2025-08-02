@@ -2,26 +2,31 @@ package com.project.shopapp.cotrollers;
 
 import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
+import com.project.shopapp.responses.UpdateCategoryResponse;
 import com.project.shopapp.services.CategoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("${api.prefix}/categories")
 //@Validated
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final MessageSource messageSource;
+    private final LocaleResolver localeResolver;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @PostMapping("")
     // nếu tham số truyền vào là 1 Oject(đối tượng) => Data Transfer Oject (DTO)
@@ -45,10 +50,15 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateCategories(@PathVariable Long id,@Valid @RequestBody CategoryDTO categoryDTO){
+    public ResponseEntity<UpdateCategoryResponse> updateCategories(@PathVariable Long id,
+                                                                   @Valid @RequestBody CategoryDTO categoryDTO,
+                                                                   HttpServletRequest request){
         categoryService.updateCategory(id,categoryDTO);
+        Locale locale = localeResolver.resolveLocale(request);
 
-        return ResponseEntity.ok("Cập nhật thành công");
+        return ResponseEntity.ok(UpdateCategoryResponse.builder()
+                        .message(messageSource.getMessage("category.update_category.category_successfully",null,locale))
+                .build());
     }
     @DeleteMapping ("/{id}")
     public ResponseEntity<String> deleteCategories(@PathVariable Long id){
