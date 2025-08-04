@@ -1,9 +1,11 @@
 package com.project.shopapp.cotrollers;
 
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
 import com.project.shopapp.responses.UpdateCategoryResponse;
 import com.project.shopapp.services.CategoryService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +26,8 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-    private final MessageSource messageSource;
-    private final LocaleResolver localeResolver;
+
+    private final LocalizationUtils localizationUtils;
 
 
     @PostMapping("")
@@ -51,19 +53,18 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UpdateCategoryResponse> updateCategories(@PathVariable Long id,
-                                                                   @Valid @RequestBody CategoryDTO categoryDTO,
-                                                                   HttpServletRequest request){
+                                                                   @Valid @RequestBody CategoryDTO categoryDTO){
         categoryService.updateCategory(id,categoryDTO);
-        Locale locale = localeResolver.resolveLocale(request);
+
 
         return ResponseEntity.ok(UpdateCategoryResponse.builder()
-                        .message(messageSource.getMessage("category.update_category.category_successfully",null,locale))
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY))
                 .build());
     }
     @DeleteMapping ("/{id}")
     public ResponseEntity<String> deleteCategories(@PathVariable Long id){
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok("xóa"+id);
+        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY));
     }
 
 }

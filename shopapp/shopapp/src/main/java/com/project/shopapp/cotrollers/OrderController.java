@@ -1,9 +1,12 @@
 package com.project.shopapp.cotrollers;
 
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.services.IOrderService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -12,14 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("${api.prefix}/orders")
 public class OrderController {
 
     private final IOrderService orderService;
+    private final LocalizationUtils localizationUtils;
 
-    public OrderController(IOrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @PostMapping("")
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDTO orderDTO, BindingResult result){
@@ -74,6 +76,6 @@ public class OrderController {
     public ResponseEntity<String> deleteOrder(@Valid @PathVariable Long id){
 
         orderService.deleteOrder(id);
-        return ResponseEntity.ok("Đã xóa đơn hàng");
+        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY));
     }
 }

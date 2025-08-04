@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenUtil {
+public class JwtTokenUtils {
 
     // thời gian token
     @Value("${jwt.expiration}")

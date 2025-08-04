@@ -1,6 +1,7 @@
 package com.project.shopapp.cotrollers;
 
 import com.github.javafaker.Faker;
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
 import com.project.shopapp.models.Product;
@@ -10,6 +11,7 @@ import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.services.IProductService;
 import jakarta.validation.Path;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,14 +35,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/products")
 public class ProductController {
     private  final IProductService productService;
+    private final LocalizationUtils localizationUtils;
 
-    public ProductController(IProductService productService) {
-        this.productService = productService;
-    }
+
 
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getProducts(

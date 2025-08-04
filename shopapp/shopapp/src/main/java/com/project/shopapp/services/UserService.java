@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-import com.project.shopapp.components.JwtTokenUtil;
+import com.project.shopapp.components.JwtTokenUtils;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.PermissionException;
@@ -28,7 +28,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
 
     

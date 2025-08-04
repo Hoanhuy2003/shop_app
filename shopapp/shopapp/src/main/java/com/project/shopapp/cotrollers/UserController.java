@@ -5,11 +5,11 @@ import com.project.shopapp.dtos.UserLoginDTO;
 import com.project.shopapp.models.User;
 import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.services.IUserService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.project.shopapp.components.LocalizationUtils;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,18 +18,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.List;
-import java.util.Locale;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/users")
 public class UserController {
     private final IUserService userService;
-    private final MessageSource messageSource;
-    private final LocaleResolver localeResolver;
+    private final LocalizationUtils localizationUtils;
 
 
     @PostMapping("/register") // bảo mật
@@ -44,7 +41,7 @@ public class UserController {
             }
             //kiểm tra mật khẩu và gõ lại mậu khẩu
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                return ResponseEntity.badRequest().body("Mat khẩu không giống");
+                return ResponseEntity.badRequest().body(MessageKeys.PASSWORD_NOT_MATCH);
             }
            User user = userService.createUser(userDTO);
            // return ResponseEntity.ok("đăng nhập thành công");
@@ -56,22 +53,21 @@ public class UserController {
     }
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody
-                                                   UserLoginDTO userLoginDTO,
-                                               HttpServletRequest request
+                                                   UserLoginDTO userLoginDTO
 
                                                ) {
     try {
         String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
 
-        Locale locale = localeResolver.resolveLocale(request);
+
         return ResponseEntity.ok(LoginResponse.builder()
-                        .message(messageSource.getMessage("user.login.login_successfully", null, locale))
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
                         .token(token)
                 .build());
     } catch (Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 LoginResponse.builder()
-                        .message(e.getMessage())
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED,e.getMessage()))
                         .build()
         );
     }
