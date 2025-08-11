@@ -45,20 +45,24 @@ public class WedSecurityConfig {
                 )
                        .permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                String.format("%s/roles**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                                String.format("%s/roles**", apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.GET,
-                           String.format("%s/categoris**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                           String.format("%s/categories**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
                        .requestMatchers(HttpMethod.POST,
-                           String.format("%s/categoris/**", apiPrefix)).hasAnyRole( Role.ADMIN)    
+                           String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                        .requestMatchers(HttpMethod.PUT,
-                           String.format("%s/categoris/**", apiPrefix)).hasAnyRole( Role.ADMIN)    
+                           String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                        .requestMatchers(HttpMethod.DELETE,
-                           String.format("%s/categoris/**", apiPrefix)).hasAnyRole( Role.ADMIN)  
+                           String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
 
                        .requestMatchers(HttpMethod.GET,
-                           String.format("%s/products**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                           String.format("%s/products/**", apiPrefix)).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                String.format("%s/products/images/*", apiPrefix)).hasRole(Role.ADMIN)
+                        .requestMatchers(HttpMethod.POST,
+                                String.format("%s/products", apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.POST,
-                           String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)    
+                           String.format("%s/products/uploads/**", apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.PUT,
                            String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)    
                        .requestMatchers(HttpMethod.DELETE,

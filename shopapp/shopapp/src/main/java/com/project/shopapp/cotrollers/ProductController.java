@@ -9,9 +9,11 @@ import com.project.shopapp.models.ProductImage;
 import com.project.shopapp.responses.ProductListResponse;
 import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.services.IProductService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Path;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -53,7 +55,8 @@ public class ProductController {
         // tạo Pageable
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                Sort.by("createdAt").descending() // sắp xếp theo giảm dần
+                //Sort.by("createdAt").descending() // sắp xếp theo giảm dần
+                Sort.by("id").ascending() // sắp xếp theo id tăng dần
 
 
         );
@@ -63,7 +66,7 @@ public class ProductController {
         // lấy ra danh sách các products
         List<ProductResponse> products = productPage.getContent();
          return ResponseEntity.ok(ProductListResponse.builder()
-                 .productResponses(products)
+                 .products(products)
                  .totalPages(totalPages).build());
     }
     @GetMapping("/{id}")
@@ -127,9 +130,9 @@ public class ProductController {
 
     }
     // Lấy ra ảnh bằng request khác
-    @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // này sẽ hiện trên form data
+    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // này sẽ hiện trên form data
     public ResponseEntity<?> uploadImages(
-            @PathVariable("id") long productId,
+            @PathVariable("id") Long productId,
             @RequestParam("files")List<MultipartFile> files){
         try {
             Product existingProduct = productService.getProductById(productId);
@@ -138,9 +141,10 @@ public class ProductController {
 //                        .body("Không tìm thấy sản phẩm với ID: " + productId);
 //            }
              files = files == null ? new ArrayList<MultipartFile>() : files;
-             if(files.size() > 5){
-                 return ResponseEntity.badRequest().body("CHỉ đc cập nhật 5 ảnh");
+             if(files.size() > 5    ){
+                 return ResponseEntity.badRequest().body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
              }
+
             List<ProductImage> productImages = new ArrayList<>(); // danh sách các ảnh
             for(MultipartFile file : files){
                 if(file.getSize()==0){
@@ -150,17 +154,17 @@ public class ProductController {
                 if(file.getSize() > 10*1024*1024){
                     // throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE,"File quá lớn, chỉ tối đa 10MB");
                     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                            .body("File quá lớn, chỉ tối đa 10MB");
+                            .body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_LARGE));
                 }
                 //Kiểm tra file ảnh
                 String contentType = file.getContentType();
                 if(contentType == null || !contentType.startsWith("image/")){
                     return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
-                            body("File phải có image");
+                            body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
                 }
-                // lưu file và cập nhật thumbnail trong DTO
+                // lưu file và cập nhật thumbnail trong DB
                 String filename = storeFile(file);
-                // lưu vào đối tượng product trong DTO
+                // lưu vào đối tượng product trong DB
                 ProductImage productImage = productService.createProductImage
                         (existingProduct.getId(), ProductImageDTO.builder()
                         .imageUrl(filename).build());
@@ -171,6 +175,24 @@ public class ProductController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
+    }
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName){
+        try{
+            java.nio.file.Path imagePath = Paths.get("uploads/"+imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+            if(resource.exists()){
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            }else {
+                return ResponseEntity.notFound().build();
+            }
+
+
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
     }
     // hàm lưu ảnh
     private String storeFile(MultipartFile file) throws  IOException {

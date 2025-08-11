@@ -11,6 +11,7 @@ import com.project.shopapp.repositorys.CategoryRepository;
 import com.project.shopapp.repositorys.ProductImageRepository;
 import com.project.shopapp.repositorys.ProductRepository;
 import com.project.shopapp.responses.ProductResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,6 +63,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional
     public Product updateProduct(long id, ProductDTO productDTO) throws Exception {
         Product existingProduct = getProductById(id);
         if(existingProduct != null){
@@ -79,6 +81,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional
     public void deleteProduct(long id) {
         // kiểm tra xem có tồn tại không trước khi xóa
         Optional<Product> optionalProduct = productRepository.findById(id);

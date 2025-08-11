@@ -8,6 +8,7 @@ import com.project.shopapp.models.Product;
 import com.project.shopapp.repositorys.OrderDetailRepository;
 import com.project.shopapp.repositorys.OrderRepository;
 import com.project.shopapp.repositorys.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,6 +74,7 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
 
         orderDetailRepository.deleteById(id);
