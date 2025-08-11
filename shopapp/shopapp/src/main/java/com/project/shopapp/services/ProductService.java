@@ -55,10 +55,11 @@ public class ProductService implements IProductService{
 
 
     @Override
-    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+    public Page<ProductResponse> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest) {
+        Page<Product> productPage;
+        productPage = productRepository.searchProducts(categoryId, keyword, pageRequest);
         //phân trang
-        return productRepository
-                .findAll(pageRequest)
+        return productPage
                 .map(ProductResponse::fromProduct); // thay thế cho builder().build
     }
 
