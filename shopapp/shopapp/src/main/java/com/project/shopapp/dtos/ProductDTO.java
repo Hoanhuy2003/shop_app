@@ -37,5 +37,8 @@ public class ProductDTO {
 
     private List<MultipartFile> files;
 
+   private List<ProductImageDTO>  productImages;
+
+
 
 }

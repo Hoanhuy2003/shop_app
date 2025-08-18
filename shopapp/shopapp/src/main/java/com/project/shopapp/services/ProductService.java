@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,8 +50,15 @@ public class ProductService implements IProductService{
 
     @Override
     public Product getProductById(long productId) throws Exception {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new DataNotFoundException("Không có sản phẩm với ID: " + productId));
+        Optional<Product> optionalProduct = productRepository.getDetailProduct(productId);
+        if(optionalProduct.isPresent()){
+            return optionalProduct.get();
+        }
+        throw  new DataNotFoundException("Khong tim thay san pham co id:"+productId);
+    }
+    @Override
+    public List<Product> findProductsByIds(List<Long> productIds) {
+        return productRepository.findProductByIds(productIds);
     }
 
 
@@ -114,4 +122,8 @@ public class ProductService implements IProductService{
        return productImageRepository.save(newProductImage);
 
     }
+
+
+
+
 }

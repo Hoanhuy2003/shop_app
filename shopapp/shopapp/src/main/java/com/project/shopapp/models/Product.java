@@ -1,11 +1,15 @@
 package com.project.shopapp.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "products")
-@Data
+
 @Getter
 @Setter
 @Builder
@@ -32,6 +36,15 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    // Trong Product.java
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ProductImage> productImages = new ArrayList<>();
+
+
+
+
 
 
 
