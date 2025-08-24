@@ -1,6 +1,7 @@
 package com.project.shopapp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -17,6 +18,10 @@ public class UserLoginDTO {
 
     @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
+
+    @Min(value=1, message = "Ban phai co chon quyen")
+    @JsonProperty("role_id")
+    private Long roleId;
 
 
 }

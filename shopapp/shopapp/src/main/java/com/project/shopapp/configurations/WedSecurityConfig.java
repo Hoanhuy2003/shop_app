@@ -72,7 +72,7 @@ public class WedSecurityConfig {
                        .requestMatchers(HttpMethod.POST,
                            String.format("%s/order/**", apiPrefix)).hasAnyRole(Role.USER)
                         .requestMatchers(HttpMethod.GET,
-                           String.format("%s/order/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)   
+                           String.format("%s/orders/**", apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.PUT,
                            String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)
                        .requestMatchers(HttpMethod.DELETE,
