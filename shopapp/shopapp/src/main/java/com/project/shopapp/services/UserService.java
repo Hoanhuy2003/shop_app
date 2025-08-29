@@ -3,6 +3,8 @@ package com.project.shopapp.services;
 import java.util.Date;
 
 
+import com.project.shopapp.dtos.UpdateUserDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -42,9 +44,10 @@ public class UserService implements IUserService {
         }
         Role role = roleRepository.findById(userDTO.getRoleId())
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        // khi nào thêm admin thì comment
         if(role.getName().toUpperCase().equals(Role.ADMIN)){
             throw new PermissionException("Ban khong the dang ky");
-        }        
+        }
 
         // userDTO -> user
         User newUser = User.builder()
@@ -102,6 +105,60 @@ public class UserService implements IUserService {
             throw new Exception("User not found");
         }
 
+    }
+    @Transactional
+    @Override
+    public User updateUser(Long userId, UpdateUserDTO updateUserDTO) throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(()-> new DataNotFoundException("User khong tim thay"));
+        String newPhoneNumber = updateUserDTO.getPhoneNumber();
+        if(!existingUser.getPhoneNumber().equals(newPhoneNumber) &&
+           userRepository.existsByPhoneNumber(newPhoneNumber)){
+            throw new DataIntegrityViolationException("Số điện thoại đã tồn tại");
+        }
+//
+//        Role updateRole = roleRepository.findById(updateUserDTO.getRoleId())
+//                .orElseThrow(() -> new DataNotFoundException("Role does not exist"));
+//
+//        if(updateRole.getName().equalsIgnoreCase(Role.ADMIN)){
+//            throw  new PermissionException("Bạn không thể cập nhật lên tài khoản amin");
+//        }
+
+//        existingUser.setFullName(updateUserDTO.getFullName());
+//        existingUser.setPhoneNumber(updateUserDTO.getPhoneNumber());
+//        existingUser.setAddress(updateUserDTO.getAddress());
+//        existingUser.setDateOfBirth(updateUserDTO.getDateOfBirth());
+//        existingUser.setFacebookAccountId(updateUserDTO.getFacebookAccountId());
+//        existingUser.setGoogleAccountId(updateUserDTO.getGoogleAccountId());
+        //existingUser.setRole(updateRole);
+
+        if(updateUserDTO.getFullName() != null){
+            existingUser.setFullName(updateUserDTO.getFullName());
+        }
+        if(updateUserDTO.getPhoneNumber() != null){
+            existingUser.setPhoneNumber(updateUserDTO.getPhoneNumber());
+        }
+        if(updateUserDTO.getAddress() != null){
+            existingUser.setAddress(updateUserDTO.getAddress());
+        }
+        if(updateUserDTO.getDateOfBirth() != null){
+            existingUser.setDateOfBirth(updateUserDTO.getDateOfBirth());
+        }
+        if(updateUserDTO.getFacebookAccountId() >0){
+            existingUser.setFacebookAccountId(updateUserDTO.getFacebookAccountId());
+        }
+        if(updateUserDTO.getGoogleAccountId() >0){
+            existingUser.setPhoneNumber(updateUserDTO.getPhoneNumber());
+        }
+        if(updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().isEmpty()){
+            String newPassword = updateUserDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            existingUser.setPassword(encodedPassword);
+        }
+
+
+
+        return userRepository.save(existingUser);
     }
 
 }

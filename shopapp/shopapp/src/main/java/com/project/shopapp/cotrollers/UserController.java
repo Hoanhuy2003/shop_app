@@ -1,5 +1,6 @@
 package com.project.shopapp.cotrollers;
 
+import com.project.shopapp.dtos.UpdateUserDTO;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.dtos.UserLoginDTO;
 import com.project.shopapp.models.User;
@@ -49,6 +50,34 @@ public class UserController {
         }
 
     }
+    @PostMapping("/register-admin")
+    public ResponseEntity<?> createAdmin(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+        try {
+            if (result.hasErrors()) {
+                List<String> errorMessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errorMessage);
+            }
+
+            // kiểm tra mật khẩu và nhập lại mật khẩu
+            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+                return ResponseEntity.badRequest().body("Mật khẩu nhập lại không khớp!");
+            }
+
+            // ép role về ADMIN
+            userDTO.setRoleId(2L);
+
+            User user = userService.createUser(userDTO);
+            return ResponseEntity.ok(user);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody
                                                    UserLoginDTO userLoginDTO
@@ -75,15 +104,37 @@ public class UserController {
 }
 
     @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token){
+    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String authorizationHeader){
         try {
-            String extractedToken = token.substring(7);// loai bo "Bearer " tu chuoi token
+            String extractedToken = authorizationHeader.substring(7);// loai bo "Bearer " tu chuoi token
             User user = userService.getUserDetailsFromToken(extractedToken);
             return ResponseEntity.ok(UserResponse.fromUser(user));
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/details/{userId}")
+    public ResponseEntity<UserResponse> updateUserDetails(
+            @PathVariable Long userId,
+            @RequestBody UpdateUserDTO updateUserDTO,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+        try {
+            String extracedToken = authorizationHeader.substring(7);
+            User user = userService.getUserDetailsFromToken(extracedToken);
+
+            if(user.getId() != userId){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            User updateUser = userService.updateUser(userId, updateUserDTO);
+            return ResponseEntity.ok(UserResponse.fromUser(updateUser));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
 
 }

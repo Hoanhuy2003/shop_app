@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +29,7 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebMvc
 @RequiredArgsConstructor
 public class WedSecurityConfig {
@@ -42,8 +45,13 @@ public class WedSecurityConfig {
                 request.requestMatchers(
                     String.format("%s/users/register", apiPrefix),
                     String.format("%s/users/login", apiPrefix)
+
                 )
                        .permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                String.format("%s/users/register-admin",apiPrefix)).permitAll()
+                        .requestMatchers(HttpMethod.PUT,
+                                String.format("%s/users/details/**",apiPrefix)).hasAnyRole(Role.USER)
                         .requestMatchers(HttpMethod.GET,
                                 String.format("%s/roles**", apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.GET,
@@ -68,7 +76,9 @@ public class WedSecurityConfig {
                        .requestMatchers(HttpMethod.DELETE,
                            String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)   
                            
-                           
+
+                        .requestMatchers(HttpMethod.GET,
+                                String.format("%s/orders/get-orders-by-keyword/**",apiPrefix)).permitAll()
                        .requestMatchers(HttpMethod.POST,
                            String.format("%s/order/**", apiPrefix)).hasAnyRole(Role.USER)
                         .requestMatchers(HttpMethod.GET,

@@ -11,6 +11,8 @@ import com.project.shopapp.repositorys.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -127,4 +129,11 @@ public class OrderService implements IOrderService{
     public List<Order> findByUserId(Long userId) {
         return orderRepository.findByUserId(userId);
     }
+
+    @Override
+    public Page<Order> getOrderByKeyword(String keyword, Pageable pageable) {
+        return orderRepository.findByKeyword(keyword,pageable);
+    }
+
+
 }

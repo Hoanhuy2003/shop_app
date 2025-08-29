@@ -3,6 +3,8 @@ package com.project.shopapp.services;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,5 +18,7 @@ public interface IOrderService {
     void deleteOrder(Long id);
 
     List<Order> findByUserId(Long userId);
+
+    Page<Order> getOrderByKeyword(String keyword, Pageable pageable);
 
 }
